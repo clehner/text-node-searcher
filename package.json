@@ -1,0 +1,23 @@
+{
+  "name": "text-searcher",
+  "version": "0.0.0",
+  "description": "search text in a web page",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/clehner/text-searcher"
+  },
+  "keywords": [
+    "text",
+    "search",
+    "dom"
+  ],
+  "author": "Charles Lehner <cel@celehner.com> (http://celehner.com/)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/clehner/text-searcher/issues"
+  }
+}

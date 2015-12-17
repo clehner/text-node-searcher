@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>demo</title>
+	</head>
+	<body>
+		<div>
+			<input size="80" id="search" type="search"/>
+			<input type="button" id="prev-btn" value="&larr;"\>
+			<input type="button" id="next-btn" value="&rarr;"\>
+		</div>
+
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
+		id mauris odio. Morbi efficitur tellus tellus, sit amet viverra nibh
+		condimentum ac. Morbi lectus urna, hendrerit sed dui sit amet,
+		efficitur porta orci. Curabitur et mauris varius, suscipit metus
+		luctus, rhoncus elit. Nulla in leo venenatis, aliquet justo ut, laoreet
+		ligula. Phasellus condimentum magna nec erat congue mollis. Duis sit
+		amet rhoncus felis. Aliquam quis bibendum ex, non aliquam nibh. Mauris
+		pretium, nibh in ullamcorper imperdiet, nibh arcu mollis felis, ac
+		efficitur lacus orci ac diam. Proin accumsan urna eu elementum aliquam.
+		Quisque dapibus sagittis nunc nec accumsan. Aenean mollis, risus eget
+		viverra aliquam, mi neque dignissim ipsum, nec congue odio nibh id
+		quam.</p>
+
+		<p>Quisque a feugiat dolor. Nullam volutpat velit ut justo fringilla,
+		eu sodales magna commodo. Suspendisse posuere eget libero eu molestie.
+		Suspendisse elit eros, ultrices in bibendum sit amet, dignissim quis
+		justo. Praesent auctor massa non varius rhoncus. Pellentesque augue
+		elit, dictum in tortor eu, congue semper augue. Phasellus interdum
+		malesuada lorem.</p>
+
+		<script src="index.js"></script>
+		<script>
+			var searcher = new Searcher(document.body);
+			document.getElementById("search").onkeypress = function () {
+				searcher.setQuery(this.value);
+				// searcher.highlight();
+			};
+			document.getElementById("next-btn").onclick = function () {
+				searcher.selectNext();
+			};
+			document.getElementById("prev-btn").onclick = function () {
+				searcher.selectPrev();
+			};
+		</script>
+	</body>
+</html>
