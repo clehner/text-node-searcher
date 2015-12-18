@@ -79,14 +79,6 @@ function getPrevTextNode(node, container, wrap) {
 	return node;
 }
 
-function getFirstTextNode(container) {
-	return getNextTextNode(container, container, false);
-}
-
-function getLastTextNode(container) {
-	return getPrevTextNode(container, container, true);
-}
-
 function matchLast(re, str) {
 	var last;
 	re.lastIndex = 0;
@@ -102,9 +94,7 @@ Searcher.prototype.selectNext = function () {
 	var sel = window.getSelection();
 	var startNode = sel.focusNode;
 	var startOffset = 0;
-	if (!startNode)
-		startNode = getFirstTextNode(this.container);
-	else if (startNode.nodeType != Node.TEXT_NODE ||
+	if (!startNode || startNode.nodeType != Node.TEXT_NODE ||
 			!this.container.contains(startNode))
 		startNode = getNextTextNode(startNode, this.container, true);
 	else
@@ -131,9 +121,7 @@ Searcher.prototype.selectPrev = function () {
 	var sel = window.getSelection();
 	var endNode = sel.anchorNode;
 	var endOffset = 0;
-	if (!endNode)
-		endNode = getLastTextNode(this.container);
-	else if (endNode.nodeType != Node.TEXT_NODE ||
+	if (!endNode || endNode.nodeType != Node.TEXT_NODE ||
 			!this.container.contains(endNode))
 		endNode = getPrevTextNode(endNode, this.container, true);
 	else

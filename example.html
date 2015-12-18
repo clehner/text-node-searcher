@@ -35,7 +35,10 @@
 		<script>
 			var searcher = new Searcher(document.body);
 			var input = document.getElementById("search");
+
+			input.focus();
 			searcher.setQuery(input.value);
+
 			input.onkeyup = function () {
 				searcher.setQuery(this.value);
 			};
@@ -47,6 +50,7 @@
 						searcher.selectNext();
 				}
 			};
+
 			document.getElementById("next-btn").onclick = function () {
 				searcher.selectNext();
 			};
