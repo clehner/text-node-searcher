@@ -7,8 +7,8 @@
 	<body>
 		<div>
 			<input size="80" id="search" type="search"/>
-			<input type="button" id="prev-btn" value="&larr;"\>
-			<input type="button" id="next-btn" value="&rarr;"\>
+			<input type="button" id="prev-btn" value="&larr;"/>
+			<input type="button" id="next-btn" value="&rarr;"/>
 		</div>
 
 		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum
@@ -31,6 +31,12 @@
 		elit, dictum in tortor eu, congue semper augue. Phasellus interdum
 		malesuada lorem.</p>
 
+		<script>
+		window.onerror = function (e) {
+			document.body.appendChild(document.createElement("blockquote"))
+				.appendChild(document.createTextNode(e));
+		}
+		</script>
 		<script src="index.js"></script>
 		<script>
 			var searcher = new Searcher(document.body);
