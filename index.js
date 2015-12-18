@@ -60,7 +60,7 @@ function getNextTextNode(node, container, wrap) {
 	return node;
 }
 
-function getPrevTextNode(node, container, wrap) {
+function getPreviousTextNode(node, container, wrap) {
 	do {
 		if (node == container) {
 			if (!wrap)
@@ -114,7 +114,7 @@ TextNodeSearcher.prototype.selectNext = function () {
 	}
 };
 
-TextNodeSearcher.prototype.selectPrev = function () {
+TextNodeSearcher.prototype.selectPrevious = function () {
 	if (!this.queryStr)
 		return;
 
@@ -123,12 +123,12 @@ TextNodeSearcher.prototype.selectPrev = function () {
 	var endOffset = 0;
 	if (!endNode || endNode.nodeType != Node.TEXT_NODE ||
 			!this.container.contains(endNode))
-		endNode = getPrevTextNode(endNode, this.container, true);
+		endNode = getPreviousTextNode(endNode, this.container, true);
 	else
 		endOffset = sel.anchorOffset;
 
 	for (var node = endNode; node;
-			node = getPrevTextNode(node, this.container, true)) {
+			node = getPreviousTextNode(node, this.container, true)) {
 		var str = node.data;
 		if (endOffset < Infinity) {
 			str = node.data.substr(0, endOffset);
