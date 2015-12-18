@@ -40,12 +40,98 @@ Searcher.prototype.setQuery = function (str) {
 	this.query = new RegExp(addAccents(str), "i");
 };
 
+function log() {
+	var str;
+	try {
+		str = [].slice.call(arguments).join(", ");
+	} catch(e) {
+		str = e.message;
+	}
+	document.body.appendChild(document.createElement("pre"))
+		.appendChild(document.createTextNode(str));
+}
+window.log = log;
+
+function getFirstTextNode(container) {
+	return getNextTextNode(container, container);
+}
+
+function getNextTextNode(node, container) {
+	do {
+		if (node.firstChild) {
+			console.log('firstchild')
+			node = node.firstChild;
+		} else if (node.nextSibling) {
+			console.log('nextsib')
+			node = node.nextSibling;
+		} else {
+			do {
+				if (node == container)
+					return null;
+				console.log('parent')
+				node = node.parentNode;
+			} while (!node.nextSibling);
+				console.log('next sib')
+			node = node.nextSibling;
+		}
+	} while (node.nodeType != Node.TEXT_NODE);
+	console.log('ret', node.nodeValue)
+	return node;
+}
+
+function nodeValue(node) {
+	return node.nodeValue;
+}
+
+function textNodesToString(nodes) {
+	return nodes.map(nodeValue).join("");
+}
+
 Searcher.prototype.selectNext = function () {
-	// Searcher_selectNext(this.container);
+	if (!this.queryLen)
+		return;
+
 	var sel = window.getSelection();
-	// var range = sel.getRangeAt(0);
+	var startNode = sel.extentNode || getFirstTextNode(this.container);
+	var startOffset = sel.extentOffset;
+	var textNodesTextLen = startNode.nodeValue.length - startOffset;
+	var textNodes = [startNode];
+	var lastTextNode = startNode;
+	while (textNodesTextLen < this.queryLen) {
+		// console.log('add another.', textNodesTextLen)
+		lastTextNode = getNextTextNode(lastTextNode, this.container);
+		if (!lastTextNode)
+			return;
+		textNodes.push(lastTextNode);
+		textNodesTextLen += lastTextNode.nodeValue.length;
+	}
+	var str = textNodesToString(textNodes);
+	log(textNodesTextLen, textNodes.length, str);
+	textNodesToString(textNodes);
+	var m = str.search(this.query);
+	if (m) {
+		var i = m.index;
+		var firstNodeLen = textNodes[0].nodeValue.length;
+		while (i > firstNodeLen) {
+			textNodesTextLen -= firstNodeLen;
+			i -= firstNodeLen;
+			textNodes.shift();
+		}
+		startNode = textNodes[0];
+		startOffset = i;
+		// m[0].length
+		setSelection(startNode, startOffset,
+			startNode, startOffset + 1);
+	}
+	//	set selection
+
+
+
+	// log(node, offset);
+	/*
 	setSelection(sel.anchorNode, sel.anchorOffset + 1,
 		sel.extentNode, sel.extentOffset + 1);
+		*/
 };
 
 Searcher.prototype.selectPrev = function () {

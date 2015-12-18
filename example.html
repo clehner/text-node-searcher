@@ -32,14 +32,24 @@
 		malesuada lorem.</p>
 
 		<script>
-		window.onerror = function (e) {
-			document.body.appendChild(document.createElement("blockquote"))
-				.appendChild(document.createTextNode(e));
+		function toStr(obj) {
+			var str = '';
+			for (var key in obj) {
+				if (str) str += ', ';
+				str += key + ': ' + obj[key];
+			}
+			return '{' + str + '}';
 		}
+		window.addEventListener("error", function (e) {
+			log(e.message, e.filename, e.lineno + ":" + e.colno)
+		}, false);
+			// document.body.appendChild(document.createElement("blockquote"))
+				// .appendChild(document.createTextNode(e.toString()));
 		</script>
 		<script src="index.js"></script>
 		<script>
 			var searcher = new Searcher(document.body);
+			searcher.setQuery("dolor");
 			document.getElementById("search").onkeypress = function () {
 				searcher.setQuery(this.value);
 				// searcher.highlight();
