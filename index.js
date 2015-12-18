@@ -52,39 +52,50 @@ function log() {
 }
 window.log = log;
 
-function getFirstTextNode(container) {
-	return getNextTextNode(container, container);
-}
-
-function getNextTextNode(node, container) {
+function getNextTextNode(node, container, wrap) {
 	do {
 		if (node.firstChild) {
-			console.log('firstchild')
+			console.log('firstchild');
 			node = node.firstChild;
 		} else if (node.nextSibling) {
-			console.log('nextsib')
+			console.log('nextsib');
 			node = node.nextSibling;
 		} else {
 			do {
 				if (node == container)
-					return null;
-				console.log('parent')
+					return wrap ? getFirstTextNode(container) : null;
+				console.log('parent');
 				node = node.parentNode;
 			} while (!node.nextSibling);
-				console.log('next sib')
+				console.log('next sib');
 			node = node.nextSibling;
 		}
 	} while (node.nodeType != Node.TEXT_NODE);
-	console.log('ret', node.nodeValue)
 	return node;
 }
 
-function nodeValue(node) {
-	return node.nodeValue;
+function getPrevTextNode(node, container, wrap) {
+	do {
+		if (node.previousSibling) {
+			console.log('previous sib');
+			node = node.previousSibling;
+			while (node.lastChild)
+				node = node.lastChild;
+		} else if (node.parentNode != container) {
+			node = node.parentNode;
+		} else {
+			return wrap ? getLastTextNode(container) : null;
+		}
+	} while (node.nodeType != Node.TEXT_NODE);
+	return node;
 }
 
-function textNodesToString(nodes) {
-	return nodes.map(nodeValue).join("");
+function getFirstTextNode(container) {
+	return getNextTextNode(container, container);
+}
+
+function getLastTextNode(container) {
+	return getPrevTextNode(container, container);
 }
 
 Searcher.prototype.selectNext = function () {
@@ -92,74 +103,54 @@ Searcher.prototype.selectNext = function () {
 		return;
 
 	var sel = window.getSelection();
-	var startNode = sel.extentNode || getFirstTextNode(this.container);
-	var startOffset = sel.extentOffset;
-	var textNodesTextLen = startNode.nodeValue.length - startOffset;
-	var textNodes = [startNode];
-	var lastTextNode = startNode;
-	while (textNodesTextLen < this.queryLen) {
-		// console.log('add another.', textNodesTextLen)
-		lastTextNode = getNextTextNode(lastTextNode, this.container);
-		if (!lastTextNode)
+	var startNode = sel.focusNode || getFirstTextNode(this.container);
+	var startOffset = sel.focusOffset;
+	if (!startNode)
+		return;
+	if (!startNode.nodeValue)
+		console.log('start', startNode);
+
+	for (var node = startNode, str = node.nodeValue.substr(startOffset);
+		node;
+		node = getNextTextNode(node, this.container, true),
+			str = node.nodeValue)
+	{
+		var m = str.match(this.query);
+		if (m) {
+			var i = m.index;
+			console.log('next node', node, 'index', i);
+			setSelection(node, i, node, i + m[0].length);
 			return;
-		textNodes.push(lastTextNode);
-		textNodesTextLen += lastTextNode.nodeValue.length;
-	}
-	var str = textNodesToString(textNodes);
-	log(textNodesTextLen, textNodes.length, str);
-	textNodesToString(textNodes);
-	var m = str.search(this.query);
-	if (m) {
-		var i = m.index;
-		var firstNodeLen = textNodes[0].nodeValue.length;
-		while (i > firstNodeLen) {
-			textNodesTextLen -= firstNodeLen;
-			i -= firstNodeLen;
-			textNodes.shift();
 		}
-		startNode = textNodes[0];
-		startOffset = i;
-		// m[0].length
-		setSelection(startNode, startOffset,
-			startNode, startOffset + 1);
 	}
-	//	set selection
-
-
-
-	// log(node, offset);
-	/*
-	setSelection(sel.anchorNode, sel.anchorOffset + 1,
-		sel.extentNode, sel.extentOffset + 1);
-		*/
 };
 
 Searcher.prototype.selectPrev = function () {
-};
+	if (!this.queryLen)
+		return;
 
-/*
-function Searcher_selectNext(parentNode) {
-	for (var el = parentNode.firstChild; el; el = el.nextSibling) {
-		if (el.firstChild) {
-			Searcher_selectNext(parentNode);
-		} else if (el.nodeType == 3) { // NODE_TEXT
-			var text = el.nodeValue;
-			void text;
+	var sel = window.getSelection();
+	var endNode = sel.anchorNode || getLastTextNode(this.container);
+	var endOffset = sel.anchorOffset;
+	if (!endNode)
+		return;
+	if (!endNode.nodeValue)
+		console.log('end', endNode);
+
+	for (var node = endNode, str = endNode.nodeValue.substr(0, endOffset);
+		node;
+		node = getPrevTextNode(node, this.container, true),
+		str = node.nodeValue)
+	{
+		var m = str.match(this.query);
+		if (m) {
+			var i = m.index;
+			console.log('prev node', node, 'index', i);
+			setSelection(node, i, node, i + m[0].length);
+			return;
 		}
 	}
-}
-*/
-
-/*
-var range = document.createRange();
-
-range.setStart(startNode, startOffset);
-range.setEnd(endNode, endOffset);
-
-var s = window.getSelection();
-l.removeAllRanges();
-s.addRange(range);
-*/
+};
 
 if (global.module)
 	module.exports = Searcher;
