@@ -22,11 +22,11 @@ function setSelection(startNode, startOffset, endNode, endOffset) {
 	sel.addRange(range);
 }
 
-function Searcher(container) {
+function TextNodeSearcher(container) {
 	this.container = container;
 }
 
-Searcher.prototype.setQuery = function (str) {
+TextNodeSearcher.prototype.setQuery = function (str) {
 	if (str == this.queryStr)
 		return;
 
@@ -87,7 +87,7 @@ function matchLast(re, str) {
 	return last;
 }
 
-Searcher.prototype.selectNext = function () {
+TextNodeSearcher.prototype.selectNext = function () {
 	if (!this.queryStr)
 		return;
 
@@ -114,7 +114,7 @@ Searcher.prototype.selectNext = function () {
 	}
 };
 
-Searcher.prototype.selectPrev = function () {
+TextNodeSearcher.prototype.selectPrev = function () {
 	if (!this.queryStr)
 		return;
 
@@ -143,7 +143,7 @@ Searcher.prototype.selectPrev = function () {
 };
 
 if (global.module)
-	module.exports = Searcher;
+	module.exports = TextNodeSearcher;
 else
-	global.Searcher = Searcher;
+	global.TextNodeSearcher = TextNodeSearcher;
 }(this));

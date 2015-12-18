@@ -1,5 +1,5 @@
 {
-  "name": "text-searcher",
+  "name": "text-node-searcher",
   "version": "0.0.0",
   "description": "search text in a web page",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/clehner/text-searcher"
+    "url": "git://github.com/clehner/text-node-searcher"
   },
   "keywords": [
     "text",
@@ -18,6 +18,6 @@
   "author": "Charles Lehner <cel@celehner.com> (http://celehner.com/)",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/clehner/text-searcher/issues"
+    "url": "https://github.com/clehner/text-node-searcher/issues"
   }
 }
