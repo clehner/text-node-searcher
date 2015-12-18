@@ -23,6 +23,10 @@ function addAccents(str) {
 		.replace(/y/ig, "[yÿ]");
 }
 
+function quoteRegex(str) {
+	return str.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+}
+
 function setSelection(startNode, startOffset, endNode, endOffset) {
 	var range = document.createRange();
 	range.setStart(startNode, startOffset);
@@ -42,7 +46,7 @@ TextNodeSearcher.prototype.setQuery = function (str) {
 		return;
 
 	this.queryStr = str;
-	this.query = new RegExp(addAccents(str), "ig");
+	this.query = new RegExp(addAccents(quoteRegex(str)), "ig");
 };
 
 function shouldDescendInto(node) {
@@ -105,8 +109,9 @@ TextNodeSearcher.prototype.selectNext = function () {
 	var sel = window.getSelection();
 	var startNode = sel.focusNode;
 	var startOffset = 0;
-	if (!startNode || startNode.nodeType != Node.TEXT_NODE ||
-			!this.container.contains(startNode))
+	if (!startNode || !this.container.contains(startNode))
+		startNode = getNextTextNode(this.container, this.container, true);
+	else if (startNode.nodeType != Node.TEXT_NODE)
 		startNode = getNextTextNode(startNode, this.container, true);
 	else
 		startOffset = sel.focusOffset;
@@ -132,9 +137,10 @@ TextNodeSearcher.prototype.selectPrevious = function () {
 	var sel = window.getSelection();
 	var endNode = sel.anchorNode;
 	var endOffset = 0;
-	if (!endNode || endNode.nodeType != Node.TEXT_NODE ||
-			!this.container.contains(endNode))
+	if (!endNode || !this.container.contains(endNode))
 		endNode = getPreviousTextNode(endNode, this.container, true);
+	else if (endNode.nodeType != Node.TEXT_NODE)
+		endNode = getPreviousTextNode(this.container, this.container, true);
 	else
 		endOffset = sel.anchorOffset;
 
