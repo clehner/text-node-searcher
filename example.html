@@ -1,12 +1,12 @@
 <!doctype html>
 <html>
 	<head>
-		<meta charset="utf-8">
+		<meta charset="utf-8"/>
 		<title>demo</title>
 	</head>
 	<body>
 		<div>
-			<input size="80" id="search" type="search"/>
+			<input size="80" id="search" type="search" value="eli"/>
 			<input type="button" id="prev-btn" value="&larr;"/>
 			<input type="button" id="next-btn" value="&rarr;"/>
 		</div>
@@ -31,28 +31,21 @@
 		elit, dictum in tortor eu, congue semper augue. Phasellus interdum
 		malesuada lorem.</p>
 
-		<script>
-		function toStr(obj) {
-			var str = '';
-			for (var key in obj) {
-				if (str) str += ', ';
-				str += key + ': ' + obj[key];
-			}
-			return '{' + str + '}';
-		}
-		window.addEventListener("error", function (e) {
-			log(e.message, e.filename, e.lineno + ":" + e.colno)
-		}, false);
-			// document.body.appendChild(document.createElement("blockquote"))
-				// .appendChild(document.createTextNode(e.toString()));
-		</script>
 		<script src="index.js"></script>
 		<script>
 			var searcher = new Searcher(document.body);
-			searcher.setQuery("dolor");
-			document.getElementById("search").onkeypress = function () {
+			var input = document.getElementById("search");
+			searcher.setQuery(input.value);
+			input.onkeyup = function () {
 				searcher.setQuery(this.value);
-				// searcher.highlight();
+			};
+			input.onkeypress = function (e) {
+				if (e.keyCode == 13) { // Enter
+					if (e.shiftKey)
+						searcher.selectPrev();
+					else
+						searcher.selectNext();
+				}
 			};
 			document.getElementById("next-btn").onclick = function () {
 				searcher.selectNext();

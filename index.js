@@ -26,48 +26,34 @@ function Searcher(container) {
 	this.container = container;
 }
 
-Searcher.prototype.highlight = function () {
-	// if (this.isHighlighted)
-
-};
-
 Searcher.prototype.setQuery = function (str) {
 	if (str == this.queryStr)
 		return;
 
 	this.queryStr = str;
-	this.queryLen = str.length;
-	this.query = new RegExp(addAccents(str), "i");
+	this.query = new RegExp(addAccents(str), "ig");
 };
 
-function log() {
-	var str;
-	try {
-		str = [].slice.call(arguments).join(", ");
-	} catch(e) {
-		str = e.message;
-	}
-	document.body.appendChild(document.createElement("pre"))
-		.appendChild(document.createTextNode(str));
+function shouldDescendInto(node) {
+	return node.nodeName != "SCRIPT" && node.nodeName != "STYLE";
 }
-window.log = log;
 
 function getNextTextNode(node, container, wrap) {
-	do {
-		if (node.firstChild) {
-			console.log('firstchild');
+	outer: do {
+		if (shouldDescendInto(node) && node.firstChild) {
 			node = node.firstChild;
 		} else if (node.nextSibling) {
-			console.log('nextsib');
 			node = node.nextSibling;
 		} else {
 			do {
-				if (node == container)
-					return wrap ? getFirstTextNode(container) : null;
-				console.log('parent');
+				if (node == container) {
+					if (!wrap)
+						return null;
+					wrap = false;
+					continue outer;
+				}
 				node = node.parentNode;
 			} while (!node.nextSibling);
-				console.log('next sib');
 			node = node.nextSibling;
 		}
 	} while (node.nodeType != Node.TEXT_NODE);
@@ -76,77 +62,93 @@ function getNextTextNode(node, container, wrap) {
 
 function getPrevTextNode(node, container, wrap) {
 	do {
-		if (node.previousSibling) {
-			console.log('previous sib');
-			node = node.previousSibling;
-			while (node.lastChild)
+		if (node == container) {
+			if (!wrap)
+				return null;
+			while (shouldDescendInto(node) && node.lastChild)
 				node = node.lastChild;
-		} else if (node.parentNode != container) {
-			node = node.parentNode;
+			wrap = false;
+		} else if (node.previousSibling) {
+			node = node.previousSibling;
+			while (shouldDescendInto(node) && node.lastChild)
+				node = node.lastChild;
 		} else {
-			return wrap ? getLastTextNode(container) : null;
+			node = node.parentNode;
 		}
 	} while (node.nodeType != Node.TEXT_NODE);
 	return node;
 }
 
 function getFirstTextNode(container) {
-	return getNextTextNode(container, container);
+	return getNextTextNode(container, container, false);
 }
 
 function getLastTextNode(container) {
-	return getPrevTextNode(container, container);
+	return getPrevTextNode(container, container, true);
+}
+
+function matchLast(re, str) {
+	var last;
+	re.lastIndex = 0;
+	for (var m = re.exec(str); m; m = re.exec(str))
+		last = m;
+	return last;
 }
 
 Searcher.prototype.selectNext = function () {
-	if (!this.queryLen)
+	if (!this.queryStr)
 		return;
 
 	var sel = window.getSelection();
-	var startNode = sel.focusNode || getFirstTextNode(this.container);
-	var startOffset = sel.focusOffset;
+	var startNode = sel.focusNode;
+	var startOffset = 0;
 	if (!startNode)
-		return;
-	if (!startNode.data)
-		console.log('start', startNode);
+		startNode = getFirstTextNode(this.container);
+	else if (startNode.nodeType != Node.TEXT_NODE ||
+			!this.container.contains(startNode))
+		startNode = getNextTextNode(startNode, this.container, true);
+	else
+		startOffset = sel.focusOffset;
 
-	for (var node = startNode, str = node.data.substr(startOffset);
-		node;
-		node = getNextTextNode(node, this.container, true),
-			str = node.data)
-	{
-		var m = str.match(this.query);
+	for (var node = startNode; node;
+			node = getNextTextNode(node, this.container, true)) {
+		var str = node.data;
+		this.query.lastIndex = startOffset;
+		if (startOffset)
+			startOffset = 0;
+		var m = this.query.exec(str);
 		if (m) {
-			var i = m.index;
-			console.log('next node', node, 'index', i);
-			setSelection(node, i, node, i + m[0].length);
+			setSelection(node, m.index, node, m.index + m[0].length);
 			return;
 		}
 	}
 };
 
 Searcher.prototype.selectPrev = function () {
-	if (!this.queryLen)
+	if (!this.queryStr)
 		return;
 
 	var sel = window.getSelection();
-	var endNode = sel.anchorNode || getLastTextNode(this.container);
-	var endOffset = sel.anchorOffset;
+	var endNode = sel.anchorNode;
+	var endOffset = 0;
 	if (!endNode)
-		return;
-	if (!endNode.data)
-		console.log('end', endNode);
+		endNode = getLastTextNode(this.container);
+	else if (endNode.nodeType != Node.TEXT_NODE ||
+			!this.container.contains(endNode))
+		endNode = getPrevTextNode(endNode, this.container, true);
+	else
+		endOffset = sel.anchorOffset;
 
-	for (var node = endNode, str = endNode.data.substr(0, endOffset);
-		node;
-		node = getPrevTextNode(node, this.container, true),
-		str = node.data)
-	{
-		var m = str.match(this.query);
+	for (var node = endNode; node;
+			node = getPrevTextNode(node, this.container, true)) {
+		var str = node.data;
+		if (endOffset < Infinity) {
+			str = node.data.substr(0, endOffset);
+			endOffset = Infinity;
+		}
+		var m = matchLast(this.query, str);
 		if (m) {
-			var i = m.index;
-			console.log('prev node', node, 'index', i);
-			setSelection(node, i, node, i + m[0].length);
+			setSelection(node, m.index, node, m.index + m[0].length);
 			return;
 		}
 	}
