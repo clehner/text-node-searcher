@@ -107,13 +107,13 @@ Searcher.prototype.selectNext = function () {
 	var startOffset = sel.focusOffset;
 	if (!startNode)
 		return;
-	if (!startNode.nodeValue)
+	if (!startNode.data)
 		console.log('start', startNode);
 
-	for (var node = startNode, str = node.nodeValue.substr(startOffset);
+	for (var node = startNode, str = node.data.substr(startOffset);
 		node;
 		node = getNextTextNode(node, this.container, true),
-			str = node.nodeValue)
+			str = node.data)
 	{
 		var m = str.match(this.query);
 		if (m) {
@@ -134,13 +134,13 @@ Searcher.prototype.selectPrev = function () {
 	var endOffset = sel.anchorOffset;
 	if (!endNode)
 		return;
-	if (!endNode.nodeValue)
+	if (!endNode.data)
 		console.log('end', endNode);
 
-	for (var node = endNode, str = endNode.nodeValue.substr(0, endOffset);
+	for (var node = endNode, str = endNode.data.substr(0, endOffset);
 		node;
 		node = getPrevTextNode(node, this.container, true),
-		str = node.nodeValue)
+		str = node.data)
 	{
 		var m = str.match(this.query);
 		if (m) {
