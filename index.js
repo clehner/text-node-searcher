@@ -38,7 +38,7 @@ function setSelection(startNode, startOffset, endNode, endOffset) {
 }
 
 function TextNodeSearcher(container) {
-	this.container = container;
+	this.container = container || document.body;
 }
 
 TextNodeSearcher.prototype.setQuery = function (str) {
@@ -68,6 +68,8 @@ function getNextTextNode(node, container, wrap) {
 					continue outer;
 				}
 				node = node.parentNode;
+				if (!node)
+					node = container;
 			} while (!node.nextSibling);
 			node = node.nextSibling;
 		}
@@ -105,7 +107,7 @@ function matchLast(re, str) {
 }
 
 TextNodeSearcher.prototype.selectNext = function () {
-	if (!this.queryStr)
+	if (!this.queryStr || !this.container)
 		return;
 
 	var sel = window.getSelection();
@@ -134,7 +136,7 @@ TextNodeSearcher.prototype.selectNext = function () {
 };
 
 TextNodeSearcher.prototype.selectPrevious = function () {
-	if (!this.queryStr)
+	if (!this.queryStr || !this.container)
 		return;
 
 	var sel = window.getSelection();
