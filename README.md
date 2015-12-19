@@ -6,10 +6,19 @@ Search for text in a web page
 
 ### Contructor
 
-* `new TextNodeSeacher(Element container)`
+* `new TextNodeSeacher(Object options)`
 
-	Create a searcher for text nodes in the given container.
-	`container` defaults to `document.body`.
+	Create a searcher for text nodes
+
+#### Options
+
+* `container`: `Element` (default: `document.body`)
+
+	Search for nodes within the given container
+
+* `highlightTagName`: `String` (default: `"highlight"`)
+
+	Use the given tag name for highlight elements
 
 ### Methods
 
@@ -25,6 +34,14 @@ Search for text in a web page
 
 	Select the previous text segment matching the query
 
+* `highlight()`
+
+	Highlight matching search results
+
+* `unhighlight()`
+
+	Remove any highlighting of search results
+
 ### Properties
 
 * `Element container`
@@ -39,7 +56,6 @@ Search for text in a web page
 ## TODO
 
 - Match text that spans multiple text nodes
-- Highlight matches
 
 ## License
 

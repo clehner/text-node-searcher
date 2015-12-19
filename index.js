@@ -54,9 +54,16 @@ function selectText(node, offset, len, align) {
 	setSelection(node, offset, node, offset + len);
 }
 
-function TextNodeSearcher(container) {
-	this.container = container || document.body;
+function TextNodeSearcher(opt) {
+	if (!opt)
+		opt = {};
+	else if (opt instanceof window.Element)
+		opt = {container: opt};
+	this.container = opt.container || document.body;
+	this.highlightTagName = opt.highlightTagName || this.highlightTagName;
 }
+
+TextNodeSearcher.prototype.highlightTagName = "highlight";
 
 TextNodeSearcher.prototype.setQuery = function (str) {
 	if (str == this.queryStr)
@@ -114,6 +121,56 @@ function matchLast(re, str) {
 		last = m;
 	return last;
 }
+
+TextNodeSearcher.prototype.highlight = function () {
+	if (this.highlightedQuery == this.query)
+		return;
+	else if (this.highlightedQuery)
+		this.unhighlight();
+	var query = this.highlightedQuery = this.query;
+
+	query.lastIndex = 0;
+	for (var node = getNextTextNode(this.container, this.container); node;
+			node = getNextTextNode(node, this.container)) {
+		var m = query.exec(node.data);
+		if (m) {
+			var offset = m.index;
+			var len = m[0].length;
+			if (len === 0)
+				return;
+			var hl = document.createElement(this.highlightTagName);
+			var middle = offset > 0 ? node.splitText(offset) : node;
+			var next;
+			if (middle.data.length > len) {
+				next = middle.splitText(len);
+			} else {
+				next = middle.nextSibling;
+			}
+			var parent = node.parentNode;
+			hl.appendChild(middle);
+			if (next)
+				parent.insertBefore(hl, next);
+			else
+				parent.appendChild(hl);
+			node = middle;
+			query.lastIndex = len;
+		}
+	}
+};
+
+TextNodeSearcher.prototype.unhighlight = function () {
+	this.highlightedQuery = null;
+	var els = this.container.getElementsByTagName(this.highlightTagName);
+	els = [].slice.call(els);
+	for (var i = 0; i < els.length; i++) {
+		var el = els[i];
+		var parent = el.parentNode;
+		var text = el.firstChild;
+		parent.insertBefore(text, el);
+		parent.removeChild(el);
+		parent.normalize();
+	}
+};
 
 TextNodeSearcher.prototype.selectNext = function () {
 	if (!this.queryStr || !this.container)

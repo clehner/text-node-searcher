@@ -3,6 +3,11 @@
 	<head>
 		<meta charset="utf-8"/>
 		<title>demo</title>
+<style>
+highlight {
+	background-color: yellow;
+}
+</style>
 	</head>
 	<body>
 		<div>
@@ -43,20 +48,25 @@
 
 			input.onkeyup = function () {
 				searcher.setQuery(this.value);
+				searcher.highlight();
 			};
-			input.onkeypress = function (e) {
+			input.onkeydown = function (e) {
 				if (e.keyCode == 13) { // Enter
 					if (e.shiftKey)
 						searcher.selectPrevious();
 					else
 						searcher.selectNext();
+				} else if (e.keyCode == 27) { // Escape
+					searcher.unhighlight();
 				}
 			};
 
 			document.getElementById("next-btn").onclick = function () {
+				searcher.highlight();
 				searcher.selectNext();
 			};
 			document.getElementById("prev-btn").onclick = function () {
+				searcher.highlight();
 				searcher.selectPrevious();
 			};
 		</script>
