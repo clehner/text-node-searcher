@@ -71,13 +71,15 @@ function getNextTextNode(node, container, wrap) {
 			} while (!node.nextSibling);
 			node = node.nextSibling;
 		}
-	} while (node.nodeType != Node.TEXT_NODE);
+	} while (node.nodeType != node.TEXT_NODE);
 	return node;
 }
 
 function getPreviousTextNode(node, container, wrap) {
 	do {
-		if (node == container) {
+		if (!node) {
+			node = container;
+		} else if (node == container) {
 			if (!wrap)
 				return null;
 			while (shouldDescendInto(node) && node.lastChild)
@@ -90,7 +92,7 @@ function getPreviousTextNode(node, container, wrap) {
 		} else {
 			node = node.parentNode;
 		}
-	} while (node.nodeType != Node.TEXT_NODE);
+	} while (node.nodeType != node.TEXT_NODE);
 	return node;
 }
 
@@ -111,7 +113,7 @@ TextNodeSearcher.prototype.selectNext = function () {
 	var startOffset = 0;
 	if (!startNode || !this.container.contains(startNode))
 		startNode = getNextTextNode(this.container, this.container, true);
-	else if (startNode.nodeType != Node.TEXT_NODE)
+	else if (startNode.nodeType != startNode.TEXT_NODE)
 		startNode = getNextTextNode(startNode, this.container, true);
 	else
 		startOffset = sel.focusOffset;
@@ -139,7 +141,7 @@ TextNodeSearcher.prototype.selectPrevious = function () {
 	var endOffset = 0;
 	if (!endNode || !this.container.contains(endNode))
 		endNode = getPreviousTextNode(endNode, this.container, true);
-	else if (endNode.nodeType != Node.TEXT_NODE)
+	else if (endNode.nodeType != endNode.TEXT_NODE)
 		endNode = getPreviousTextNode(this.container, this.container, true);
 	else
 		endOffset = sel.anchorOffset;
@@ -159,8 +161,8 @@ TextNodeSearcher.prototype.selectPrevious = function () {
 	}
 };
 
-if (global.module)
+if (typeof module != "undefined")
 	module.exports = TextNodeSearcher;
-else
+else if (global)
 	global.TextNodeSearcher = TextNodeSearcher;
 }(this));
