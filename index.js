@@ -127,6 +127,7 @@ TextNodeSearcher.prototype.selectNext = function () {
 		var m = this.query.exec(str);
 		if (m) {
 			setSelection(node, m.index, node, m.index + m[0].length);
+			node.parentNode.scrollIntoView(false);
 			return;
 		}
 	}
@@ -156,6 +157,7 @@ TextNodeSearcher.prototype.selectPrevious = function () {
 		var m = matchLast(this.query, str);
 		if (m) {
 			setSelection(node, m.index, node, m.index + m[0].length);
+			node.parentNode.scrollIntoView(true);
 			return;
 		}
 	}
