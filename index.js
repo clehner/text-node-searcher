@@ -37,6 +37,23 @@ function setSelection(startNode, startOffset, endNode, endOffset) {
 	sel.addRange(range);
 }
 
+function selectText(node, offset, len, align) {
+	// Put the text into its own element so we can scroll it into view
+	var parent = node.parentNode;
+	var el = document.createElement("span");
+	var middle = offset > 0 ? node.splitText(offset) : node;
+	var end = middle.splitText(len);
+	el.appendChild(middle);
+	parent.insertBefore(el, end);
+	el.scrollIntoView(align);
+
+	// Restore the text and set the selection
+	parent.removeChild(el);
+	parent.insertBefore(middle, end);
+	parent.normalize();
+	setSelection(node, offset, node, offset + len);
+}
+
 function TextNodeSearcher(container) {
 	this.container = container || document.body;
 }
@@ -120,8 +137,7 @@ TextNodeSearcher.prototype.selectNext = function () {
 			startOffset = 0;
 		var m = this.query.exec(str);
 		if (m) {
-			setSelection(node, m.index, node, m.index + m[0].length);
-			node.parentNode.scrollIntoView(false);
+			selectText(node, m.index, m[0].length, false);
 			return;
 		}
 		node = getNextTextNode(node, this.container);
@@ -157,8 +173,7 @@ TextNodeSearcher.prototype.selectPrevious = function () {
 		}
 		var m = matchLast(this.query, str);
 		if (m) {
-			setSelection(node, m.index, node, m.index + m[0].length);
-			node.parentNode.scrollIntoView(false);
+			selectText(node, m.index, m[0].length, false);
 			return;
 		}
 		node = getPreviousTextNode(node, this.container);

@@ -1,6 +1,6 @@
 {
   "name": "text-node-searcher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "search text in a web page",
   "main": "index.js",
   "repository": {
